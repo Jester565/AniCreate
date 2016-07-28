@@ -1,18 +1,39 @@
 package aniCreate;
 
-public class Core {
+public abstract class Core {
 	public final double DEFAULT_FRAME_RATE = 60;
 	
-	Core()
+	public Core()
 	{
 		
+	}
+	
+	public void setFrameRateCap(int frameRate)
+	{
+		this.frameRateCap = frameRate;
 	}
 	
 	public void run()
 	{
 		if (init())
 		{
-			draw();
+			while (true)
+			{
+				long startTime = System.currentTimeMillis();
+	        	dm.update();
+	        	draw();
+	        	long timeLeft = (long)(1000.0/frameRateCap - (System.currentTimeMillis() - startTime));
+	        	im.update();
+	        	if (timeLeft > 0)
+	        	{
+	        		try {
+						Thread.sleep(timeLeft);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+	        	}
+	        	rate = (System.currentTimeMillis() - startTime) / (1000.0/logicalFrameRate);
+	        }
 		}
 		else
 		{
@@ -20,40 +41,49 @@ public class Core {
 		}
 	}
 	
-	public void setFrameRateCap(int frameRate)
+	public ShapeRenderer getShapeRenderer()
 	{
-		this.frameRate = frameRate;
+		return sr;
 	}
 	
-	private boolean init()
+	public DisplayManager getDisplayManager()
+	{
+		return dm;
+	}
+	
+	public InputManager getInputManager()
+	{
+		return im;
+	}
+	
+	public ButtonManager getButtonManager()
+	{
+		return bm;
+	}
+	
+	protected boolean init()
 	{
 		dm = new DisplayManager();
-        if (!dm.init())
+		im = new InputManager(dm);
+        if (!dm.init(im))
         {
         	return false;
         }
         dm.setBackgroundColor(0, 0, 0, 1);
+        sr = new ShapeRenderer(dm);
+        tr = new TextRenderer(dm);
+        bm = new ButtonManager(this);
 		return true;
 	}
 	
-	private void draw()
-	{
-		while (true)
-		{
-			long startTime = System.currentTimeMillis();
-        	dm.update();
-        	long timeLeft = (long)(1.0/frameRate - (System.currentTimeMillis() - startTime));
-        	if (timeLeft > 0)
-        	{
-        		try {
-					Thread.sleep(timeLeft);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-        	}
-        }
-	}
+	abstract protected void draw();
 	
-	public DisplayManager dm;
-	public double frameRate = DEFAULT_FRAME_RATE;
+	protected TextRenderer tr;
+	protected ShapeRenderer sr;
+	protected DisplayManager dm;
+	protected InputManager im;
+	protected ButtonManager bm;
+	public double logicalFrameRate = DEFAULT_FRAME_RATE;
+	public double frameRateCap = DEFAULT_FRAME_RATE;
+	public double rate = 1;
 }
