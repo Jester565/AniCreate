@@ -18,14 +18,22 @@ public class AniCore extends Core{
 		}
 		fail |= !tr.addFont("Calibri.ttf");
 		vidCreator = new VideoCreator(this);
-		fail |= !vidCreator.init("C:/Users/ajcra/Downloads/test2.mp4");
+		fail |= !vidCreator.init("C:/Users/ajcra/Downloads/test3.mp4");
 		vidCreator.getImageAtTime(0);
 		return !fail;
 	}
 
 	@Override
 	protected void draw() {
-		vidCreator.draw();
+		if (vidScanner == null)
+		{
+			vidScanner = vidCreator.draw();
+		}
+		else
+		{
+			vidScanner.draw();
+		}
 	}
 	private VideoCreator vidCreator;
+	private VideoScanner vidScanner = null;
 }
