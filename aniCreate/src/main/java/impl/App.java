@@ -9,7 +9,7 @@ import aniCreate.Core;
 public class App 
 {
     public static void main( String[] args )
-    {
+    { 
        Core core = new AniCore();
        core.run();
     }

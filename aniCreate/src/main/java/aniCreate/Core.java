@@ -61,6 +61,11 @@ public abstract class Core {
 		return bm;
 	}
 	
+	public TextRenderer getTextRenderer()
+	{
+		return tr;
+	}
+	
 	protected boolean init()
 	{
 		dm = new DisplayManager();

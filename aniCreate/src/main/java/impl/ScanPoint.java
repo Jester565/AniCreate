@@ -47,17 +47,5 @@ public class ScanPoint {
 	public ArrayList<Cord> cords;
 	public Color scanColor;
 	private int lastX = 0;
-	private int lastY = 0;
-	
-	class Cord {
-		public Cord(int x, int y)
-		{
-			this.x = x;
-			this.y = y;
-		}
-		
-		public int x;
-		public int y;
-	}
-	
+	private int lastY = 0; 
 }

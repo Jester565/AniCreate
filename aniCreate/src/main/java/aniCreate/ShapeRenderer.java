@@ -14,5 +14,12 @@ public class ShapeRenderer {
 		dm.graphics.fillRect((int)(x * dm.screenWScale + dm.screenXOff), (int)(y * dm.screenHScale + dm.screenYOff), (int)(w * dm.screenWScale), (int)(h * dm.screenHScale));
 	}
 	
+
+	public void drawRect(double x, double y, double w, double h, Color color)
+	{
+		dm.graphics.setColor(color);
+		dm.graphics.fillRect((int)(x * dm.screenWScale + dm.screenXOff), (int)(y * dm.screenHScale + dm.screenYOff), (int)(w * dm.screenWScale), (int)(h * dm.screenHScale));
+	}
+	
 	private DisplayManager dm;
 }

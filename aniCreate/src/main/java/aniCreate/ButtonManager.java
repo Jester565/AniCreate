@@ -9,7 +9,7 @@ public class ButtonManager {
 	public boolean overRect(double x, double y, double w, double h)
 	{
 		InputManager im = core.getInputManager();
-		return (im.mouseX > x && im.mouseX < x + w && im.mouseY > y && im.mouse Y < y + h);
+		return (im.mouseX > x && im.mouseX < x + w && im.mouseY > y && im.mouseY < y + h);
 	}
 	
 	public boolean buttonClicked(double x, double y, double w, double h, float r, float g, float b, float a)
@@ -80,7 +80,7 @@ public class ButtonManager {
 			if (b > 1)
 				b = 1;
 		}
-		core.getShapeRenderer().drawRect(x, y, w, h, 0, 1, b, a);
+		core.getShapeRenderer().drawRect(x, y, w, h, r, g, b, a);
 	}
 	
 	private Core core;

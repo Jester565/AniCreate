@@ -2,6 +2,7 @@ package aniCreate;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -28,6 +29,17 @@ public class Image {
 			return true;
 		} catch (IOException e) {
 			System.err.println("Could not find the image " + filePath + " when creating an image");
+		}
+		return false;
+	}
+	
+	public boolean init(File file)
+	{
+		try {
+			img = ImageIO.read(file);
+			return true;
+		} catch (IOException e) {
+			System.err.println("Could not find the image " + file.getAbsolutePath() + " when creating an image");
 		}
 		return false;
 	}
@@ -86,10 +98,19 @@ public class Image {
 		dm.graphics.drawImage(img, trans, null);
 	}
 	
+	public void draw(double x, double y)
+	{
+		trans = new AffineTransform();
+		trans.translate(x * dm.screenWScale + dm.screenXOff, y * dm.screenHScale + dm.screenYOff);
+		trans.rotate(rads, origX * dm.screenWScale, origY * dm.screenHScale);
+		trans.scale(dm.screenWScale, dm.screenHScale);
+		dm.graphics.drawImage(img, trans, null);
+	}
+	
+	public BufferedImage img;
 	protected double rads = 0;
 	protected double origX = 0;
 	protected double origY = 0;
-	protected BufferedImage img;
 	protected DisplayManager dm;
 	protected AffineTransform trans;
 }

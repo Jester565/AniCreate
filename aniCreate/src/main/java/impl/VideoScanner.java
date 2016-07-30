@@ -1,7 +1,10 @@
 package impl;
 
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
+
+import javax.swing.JFileChooser;
 
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
@@ -11,13 +14,11 @@ import org.bytedeco.javacv.FrameGrabber.Exception;
 import aniCreate.Core;
 import aniCreate.DisplayManager;
 import aniCreate.Image;
-import impl.ScanPoint.Cord;
 
 public class VideoScanner {
 	public VideoScanner(Core core, FFmpegFrameGrabber grabber, Java2DFrameConverter jImgConverter, int startFrame, int endFrame)
 	{
 		this.core = core;
-		this.startFrame = startFrame;
 		this.endFrame = endFrame;
 		this.grabber = grabber;
 		this.jImgConverter = jImgConverter;
@@ -31,9 +32,31 @@ public class VideoScanner {
 			e.printStackTrace();
 		}
 		scanPoints = new ArrayList<ScanPoint>();
+		parts = new ArrayList<Part>();
+		fileChooser = new JFileChooser();
 	}
 	
 	public void draw()
+	{
+		if (!finishScanSelect)
+		{
+			int i = selectScanPointIndex();
+			if (i >= 0)
+			{
+				scanPoints.remove(i);
+			}
+			if (core.getButtonManager().buttonClicked(0, DisplayManager.DISPLAY_DEFAULT_H - 100, 100, 100, 0, 1, 0, 1))
+			{
+				finishScanSelect = true;
+			}
+		}
+		else
+		{
+			partSelect();
+		}
+	}
+	
+	private int selectScanPointIndex()
 	{
 		frameImg.draw(0, 0, DisplayManager.DISPLAY_DEFAULT_W, DisplayManager.DISPLAY_DEFAULT_H);
 		if (core.getInputManager().mouseClicked)
@@ -57,14 +80,53 @@ public class VideoScanner {
 			core.getShapeRenderer().drawRect(cord.x - 2 - overBox * 2, cord.y - 2 - overBox * 2, 5 + overBox * 5, 5 + overBox * 5, 1, overBox, overBox, 1);
 			if (overBox == 1 && core.getInputManager().mouseClicked)
 			{
-				scanPoints.remove(i);
-				i--;
+				return i;
 			}
 			y += 110;
 		}
-		if (core.getInputManager().keyPressed('d'))
+		return -1;
+	}
+	
+	private void partSelect()
+	{
+		if (!partForming)
 		{
-			nextFrame();
+			if (core.getButtonManager().buttonClicked(860, 50, 200, 100, 1, 1, 1, 1))
+			{
+				fileSearching = true;
+			}
+			core.getTextRenderer().drawCenteredText("Select File", 960, 90, 20, 0, 0, 0, 1);
+			if (fileSearching)
+			{
+				int result = fileChooser.showOpenDialog(null);
+				if (result == JFileChooser.APPROVE_OPTION)
+				{
+					File selectedFile = fileChooser.getSelectedFile();
+					parts.add(new Part(core, selectedFile));
+					fileSearching = false;
+					partForming = true;
+				}
+				if (result == JFileChooser.CANCEL_OPTION)
+				{
+					fileSearching = false;
+				}
+			}
+		}
+		else
+		{
+			Part part = parts.get(parts.size() - 1);
+			if (!part.pointSelected)
+			{
+				part.drawPointSelect();
+			}
+			else
+			{
+				int i = selectScanPointIndex();
+				if (i >= 0)
+				{
+					part.setScanPoint(scanPoints.get(i));
+				}
+			}
 		}
 	}
 	
@@ -90,11 +152,16 @@ public class VideoScanner {
 		return true;
 	}
 	
+	private boolean finishScanSelect = false;
+	private ArrayList<Part> parts;
 	private ArrayList<ScanPoint> scanPoints;
 	private Image frameImg;
 	private Core core;
+	boolean fileSearching = false;
+	boolean partForming = false;
+	private JFileChooser fileChooser;
 	private FFmpegFrameGrabber grabber;
 	private Java2DFrameConverter jImgConverter;
-	private int startFrame;
+	private int scanPointI = -1;
 	private int endFrame;
 }
