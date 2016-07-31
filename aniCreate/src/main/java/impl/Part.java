@@ -41,7 +41,7 @@ public class Part {
 		}
 	}
 	
-	void setScanPoint(ScanPoint sp)
+	public void setScanPoint(ScanPoint sp)
 	{
 		if (rOrigin == null)
 		{
@@ -53,6 +53,11 @@ public class Part {
 			rFar = sp;
 			pointSelected = false;
 		}
+	}
+	
+	public boolean pointsSet()
+	{
+		return (rOrigin != null && rFar != null);
 	}
 	
 	Cord selectPoint()
@@ -76,6 +81,32 @@ public class Part {
 			}
 		}
 		return null;
+	}
+	
+	public void project()
+	{
+		img.setRotateOriginPixels(iOrigin.x, iOrigin.y);
+		Cord oriCord = rOrigin.cords.get(rOrigin.cords.size() - 1);
+		Cord farCord = rFar.cords.get(rFar.cords.size() - 1);
+		double angle = Math.atan2(oriCord.y - farCord.y, farCord.x - oriCord.x);
+		if (angle < 0)
+		{
+			angle = Math.PI * 2 + angle;
+		}
+		if (core.getInputManager().keyPressed('j'))
+		{
+			System.out.println("rad: " + angle);
+			double degs = angle * (180.0/Math.PI);
+			System.out.println("deg: " + degs);
+			System.out.println(oriCord.y - farCord.y);
+			System.out.println(farCord.x - oriCord.x);
+		}
+		img.setRads(angle);
+		double length = Math.sqrt(Math.pow(oriCord.x - farCord.x,2) + Math.pow(oriCord.y - farCord.y, 2));
+		double rate = (double)img.img.getHeight()/(double)(farCord.y - oriCord.y);
+		//length *= rate;
+		double imgScale = length/(double)img.img.getHeight();
+		img.draw(oriCord.x - iOrigin.x * imgScale, oriCord.y - iOrigin.y * imgScale, imgScale * img.img.getWidth(), length);
 	}
 	
 	int sX = -1;

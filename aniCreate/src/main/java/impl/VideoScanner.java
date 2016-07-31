@@ -115,17 +115,25 @@ public class VideoScanner {
 		else
 		{
 			Part part = parts.get(parts.size() - 1);
-			if (!part.pointSelected)
+			if (!part.pointsSet())
 			{
-				part.drawPointSelect();
+				if (!part.pointSelected)
+				{
+					part.drawPointSelect();
+				}
+				else
+				{
+					int i = selectScanPointIndex();
+					if (i >= 0)
+					{
+						part.setScanPoint(scanPoints.get(i));
+					}
+				}
 			}
 			else
 			{
-				int i = selectScanPointIndex();
-				if (i >= 0)
-				{
-					part.setScanPoint(scanPoints.get(i));
-				}
+				frameImg.draw(0, 0);
+				part.project(); 
 			}
 		}
 	}
@@ -162,6 +170,5 @@ public class VideoScanner {
 	private JFileChooser fileChooser;
 	private FFmpegFrameGrabber grabber;
 	private Java2DFrameConverter jImgConverter;
-	private int scanPointI = -1;
 	private int endFrame;
 }

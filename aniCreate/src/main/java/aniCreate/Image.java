@@ -47,13 +47,11 @@ public class Image {
 	public void setDegs(double degs)
 	{
 		rads = (Math.PI/180d) * degs;
-		trans.rotate(rads, origX, origY);
 	}
 
 	public void addDegs(double deltaDegs)
 	{
 		rads += (Math.PI/180d) * deltaDegs;
-		trans.rotate(rads, origX, origY);
 	}
 	
 	public double getDegs()
@@ -64,7 +62,6 @@ public class Image {
 	public void setRads(double rads)
 	{
 		this.rads = rads;
-		trans.rotate(rads, origX, origY);
 	}
 	
 	public void addRads(double deltaRads)
