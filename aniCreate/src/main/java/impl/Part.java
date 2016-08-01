@@ -51,6 +51,11 @@ public class Part {
 		else
 		{
 			rFar = sp;
+			Cord oriCord = rOrigin.cords.get(rOrigin.cords.size() - 1);
+			Cord farCord = rFar.cords.get(rFar.cords.size() - 1);
+			length = Math.sqrt(Math.pow(oriCord.x - farCord.x,2) + Math.pow(oriCord.y - farCord.y, 2));
+			double rate = (double)img.img.getHeight()/(double)(iFar.y - iOrigin.y);
+			length *= rate;
 			pointSelected = false;
 		}
 	}
@@ -88,11 +93,17 @@ public class Part {
 		img.setRotateOriginPixels(iOrigin.x, iOrigin.y);
 		Cord oriCord = rOrigin.cords.get(rOrigin.cords.size() - 1);
 		Cord farCord = rFar.cords.get(rFar.cords.size() - 1);
-		double angle = Math.atan2(oriCord.y - farCord.y, farCord.x - oriCord.x);
+		double localAngle = Math.atan2(iOrigin.y - iFar.y, iOrigin.x - iFar.x);
+		if (localAngle < 0)
+		{
+			localAngle = Math.PI * 2 + localAngle;
+		}
+		double angle = Math.atan2(oriCord.y - farCord.y, oriCord.x - farCord.x);
 		if (angle < 0)
 		{
 			angle = Math.PI * 2 + angle;
 		}
+		angle -= localAngle;
 		if (core.getInputManager().keyPressed('j'))
 		{
 			System.out.println("rad: " + angle);
@@ -101,14 +112,12 @@ public class Part {
 			System.out.println(oriCord.y - farCord.y);
 			System.out.println(farCord.x - oriCord.x);
 		}
-		img.setRads(angle);
-		double length = Math.sqrt(Math.pow(oriCord.x - farCord.x,2) + Math.pow(oriCord.y - farCord.y, 2));
-		double rate = (double)img.img.getHeight()/(double)(farCord.y - oriCord.y);
-		//length *= rate;
+		img.setRads(angle); 
 		double imgScale = length/(double)img.img.getHeight();
 		img.draw(oriCord.x - iOrigin.x * imgScale, oriCord.y - iOrigin.y * imgScale, imgScale * img.img.getWidth(), length);
 	}
 	
+	double length = 0;
 	int sX = -1;
 	int sY = -1;
 	Cord iOrigin;

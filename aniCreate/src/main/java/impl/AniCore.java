@@ -1,6 +1,7 @@
 package impl;
 
 import aniCreate.Core;
+import aniCreate.Image;
 
 public class AniCore extends Core{
 
@@ -18,8 +19,10 @@ public class AniCore extends Core{
 		}
 		fail |= !tr.addFont("Calibri.ttf");
 		vidCreator = new VideoCreator(this);
-		fail |= !vidCreator.init("C:/Users/ajcra/Downloads/test3.mp4");
+		fail |= !vidCreator.init("C:/Users/ajcra/Downloads/test6.mp4");
 		vidCreator.getImageAtTime(0);
+		image = new Image(dm);
+		image.init("forArmReal.png");
 		return !fail;
 	}
 
@@ -33,7 +36,19 @@ public class AniCore extends Core{
 		{
 			vidScanner.draw();
 		}
+		/*
+		image.drawScale(500, 500, .5d, .5d);
+		if (im.keyPressed('d'))
+		{
+			image.addRads(.02d);
+		}
+		if (im.keyPressed('a'))
+		{
+			image.addRads(-.02d);
+		}
+		*/
 	}
 	private VideoCreator vidCreator;
 	private VideoScanner vidScanner = null;
+	private Image image = null;
 }

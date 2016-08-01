@@ -50,9 +50,33 @@ public class VideoScanner {
 				finishScanSelect = true;
 			}
 		}
-		else
+		else if (!finishPartSelect)
 		{
 			partSelect();
+		}
+		else
+		{
+			frameImg.draw(0, 0);
+			if (projectionEnabled)
+			{
+				for (int i = 0; i < parts.size(); i++)
+				{
+					parts.get(i).project();
+				}
+			}
+			for (int i = 0; i < scanPoints.size(); i++)
+			{
+				Cord cord = scanPoints.get(i).cords.get(scanPoints.get(i).cords.size() - 1);
+				core.getShapeRenderer().drawRect(cord.x - 2, cord.y - 2, 5, 5, 1, 0, 0, 1);
+			}
+			if (core.getInputManager().keyPressed('d'))
+			{
+				nextFrame();
+			}
+			if (core.getInputManager().keyPressed('x'))
+			{
+				projectionEnabled = !projectionEnabled;
+			}
 		}
 	}
 	
@@ -133,7 +157,23 @@ public class VideoScanner {
 			else
 			{
 				frameImg.draw(0, 0);
-				part.project(); 
+				for (int i = 0; i < parts.size(); i++)
+				{
+					parts.get(i).project();
+				}
+				if (core.getButtonManager().buttonClicked(0, 0, 100, 75, 0, 1, 0, .6f))
+				{
+					partForming = false;
+				}
+				if (core.getButtonManager().buttonClicked(0, 100, 100, 75, 1, 0, 0, .6f))
+				{
+					parts.remove(parts.size()-1);
+					partForming = false;
+				}
+				if (core.getButtonManager().buttonClicked(1820, 0, 100, 75, 0, 0, 1, .6f))
+				{
+					finishPartSelect = true;
+				}
 			}
 		}
 	}
@@ -160,7 +200,9 @@ public class VideoScanner {
 		return true;
 	}
 	
+	private boolean finishPartSelect = false;
 	private boolean finishScanSelect = false;
+	private boolean projectionEnabled = true;
 	private ArrayList<Part> parts;
 	private ArrayList<ScanPoint> scanPoints;
 	private Image frameImg;

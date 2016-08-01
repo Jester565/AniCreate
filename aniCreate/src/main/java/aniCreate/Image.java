@@ -86,6 +86,15 @@ public class Image {
 		origY = imgScaleY * img.getHeight();
 	}
 	
+	public void drawScale(double x, double y, double wS, double hS)
+	{
+		trans = new AffineTransform();
+		trans.translate(x * dm.screenWScale + dm.screenXOff, y * dm.screenHScale + dm.screenYOff);
+		trans.rotate(rads, origX * wS * dm.screenWScale, origY * hS * dm.screenHScale);
+		trans.scale(wS * dm.screenWScale, hS * dm.screenHScale);
+		dm.graphics.drawImage(img, trans, null);
+	}
+	
 	public void draw(double x, double y, double w, double h)
 	{
 		trans = new AffineTransform();
