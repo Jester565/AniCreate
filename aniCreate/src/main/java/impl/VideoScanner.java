@@ -2,6 +2,12 @@ package impl;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
@@ -19,6 +25,7 @@ public class VideoScanner {
 	public VideoScanner(Core core, FFmpegFrameGrabber grabber, Java2DFrameConverter jImgConverter, int startFrame, int endFrame)
 	{
 		this.core = core;
+		this.startFrame = startFrame;
 		this.endFrame = endFrame;
 		this.grabber = grabber;
 		this.jImgConverter = jImgConverter;
@@ -54,29 +61,90 @@ public class VideoScanner {
 		{
 			partSelect();
 		}
-		else
+		else if (!finishCorrect)
 		{
-			frameImg.draw(0, 0);
-			if (projectionEnabled)
+			drawCorrect();
+		}
+	}
+	
+	private void drawCorrect()
+	{
+		frameImg.draw(0, 0);
+		if (projectionEnabled)
+		{
+			for (int i = 0; i < parts.size(); i++)
 			{
-				for (int i = 0; i < parts.size(); i++)
+				parts.get(i).project();
+			}
+		}
+		for (int i = 0; i < scanPoints.size(); i++)
+		{
+			Cord cord = scanPoints.get(i).cords.get(scanPoints.get(i).cords.size() - 1);
+			core.getShapeRenderer().drawRect(cord.x - 2, cord.y - 2, 5, 5, 1, 0, 0, 1);
+		}
+		if (pointCorrectingEnabled)
+		{
+			if (correctPoint == null)
+			{
+				int y = 0;
+				for (int i = 0; i < scanPoints.size(); i++)
 				{
-					parts.get(i).project();
+					int overBox = 0;
+					if (core.getButtonManager().overRect(0, y, 200, 100))
+					{
+						overBox = 1;
+					}
+					Color scanCol = scanPoints.get(i).scanColor;
+					Cord cord = scanPoints.get(i).cords.get(scanPoints.get(i).cords.size() - 1);
+					core.getShapeRenderer().drawRect(0, y, 200, 100, scanCol.getRed()/255f, scanCol.getGreen()/255f, scanCol.getBlue()/255f, .5f + .5f * overBox);
+					core.getShapeRenderer().drawRect(cord.x - 2 - overBox * 2, cord.y - 2 - overBox * 2, 5 + overBox * 5, 5 + overBox * 5, 1, overBox, overBox, 1);
+					if (overBox == 1)
+					{
+						if (core.getInputManager().mouseClicked)
+						{
+							correctPoint = scanPoints.get(i);
+						}
+					}
+					y += 100;
 				}
 			}
+			else
+			{
+				Cord cord = correctPoint.cords.get(correctPoint.cords.size() - 1);
+				core.getShapeRenderer().drawRect(cord.x - 2, cord.y - 2, 5, 5, 1, 1, 1, 1);
+				if (core.getButtonManager().buttonClicked(0, 0, 100, 100, correctPoint.scanColor.getRed()/255f, correctPoint.scanColor.getGreen()/255f, correctPoint.scanColor.getBlue()/255f, .8f))
+				{
+					correctPoint = null;
+				}
+				else if (core.getInputManager().mouseClicked == true)
+				{
+					correctPoint.correct(frameImg, (int)core.getInputManager().mouseX, (int)core.getInputManager().mouseY);
+				}
+			}
+		}
+		if (core.getInputManager().keyPressed('d'))
+		{
+			nextFrame();
+		}
+		if (core.getInputManager().keyPressed('a'))
+		{
+			backFrame();
+		}
+		if (core.getInputManager().keyPressed('x'))
+		{
+			projectionEnabled = !projectionEnabled;
+		}
+		if (core.getInputManager().keyPressed('z'))
+		{
+			pointCorrectingEnabled = !pointCorrectingEnabled;
+		}
+		if (core.getButtonManager().buttonClicked(1820, 0, 100, 100, 0, 1, 0, 1))
+		{
 			for (int i = 0; i < scanPoints.size(); i++)
 			{
-				Cord cord = scanPoints.get(i).cords.get(scanPoints.get(i).cords.size() - 1);
-				core.getShapeRenderer().drawRect(cord.x - 2, cord.y - 2, 5, 5, 1, 0, 0, 1);
+				scanPoints.get(i).smooth();
 			}
-			if (core.getInputManager().keyPressed('d'))
-			{
-				nextFrame();
-			}
-			if (core.getInputManager().keyPressed('x'))
-			{
-				projectionEnabled = !projectionEnabled;
-			}
+			finishCorrect = true;
 		}
 	}
 	
@@ -189,7 +257,6 @@ public class VideoScanner {
 			Frame frame = grabber.grabImage();
 			frameImg.init(jImgConverter.convert(frame));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
@@ -200,10 +267,37 @@ public class VideoScanner {
 		return true;
 	}
 	
+	private boolean backFrame()
+	{
+		if (grabber.getFrameNumber() <= startFrame)
+		{
+			System.out.println("reached startframe");
+			return false;
+		}
+		try {
+			grabber.setFrameNumber(grabber.getFrameNumber() - 1);
+			Frame frame = grabber.grabImage();
+			frameImg.init(jImgConverter.convert(frame));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		for (int i = 0; i < scanPoints.size(); i++)
+		{
+			scanPoints.get(i).rewind(1);
+			scanPoints.get(i).update(frameImg);
+		}
+		return true;
+	}
+	
+	public boolean finishCorrect = false;
+	private boolean pointCorrectingEnabled = false;
 	private boolean finishPartSelect = false;
 	private boolean finishScanSelect = false;
 	private boolean projectionEnabled = true;
-	private ArrayList<Part> parts;
+	ScanPoint correctPoint = null;
+	public ArrayList<Part> parts;
 	private ArrayList<ScanPoint> scanPoints;
 	private Image frameImg;
 	private Core core;
@@ -213,4 +307,5 @@ public class VideoScanner {
 	private FFmpegFrameGrabber grabber;
 	private Java2DFrameConverter jImgConverter;
 	private int endFrame;
+	private int startFrame;
 }

@@ -12,6 +12,7 @@ public class Part {
 		this.core = core;
 		img = new Image(core.getDisplayManager());
 		img.init(imgFile);
+		imgName = imgFile.getName();
 	}
 	
 	public void drawPointSelect()
@@ -122,9 +123,10 @@ public class Part {
 	int sY = -1;
 	Cord iOrigin;
 	Cord iFar;
+	public String imgName;
 	public boolean pointSelected = false;
 	public ScanPoint rOrigin;
 	public ScanPoint rFar;
-	private Image img;
+	public Image img;
 	private Core core;
 }

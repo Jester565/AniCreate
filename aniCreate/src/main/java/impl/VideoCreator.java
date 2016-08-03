@@ -120,8 +120,8 @@ public class VideoCreator {
 		return Math.round(num * 1000.0)/1000.0;
 	}
 	
-	private double startSeconds = 0;
-	private double endSeconds = 0;
+	public double startSeconds = 0;
+	public double endSeconds = 0;
 	private double vidFPS;
 	private double vidLength = 0;
 	private double vidSeconds = 0;

@@ -32,9 +32,22 @@ public class AniCore extends Core{
 		{
 			vidScanner = vidCreator.draw();
 		}
-		else
+		else if (!vidScanner.finishCorrect)
 		{
 			vidScanner.draw();
+		}
+		else
+		{
+			if (animation == null)
+			{
+				animation = new Animation(this);
+				animation.init(vidScanner.parts, vidCreator.endSeconds - vidCreator.startSeconds);
+			}
+			animation.draw();
+			if (im.keyPressed('r'))
+			{
+				animation.reset();
+			}
 		}
 		/*
 		image.drawScale(500, 500, .5d, .5d);
@@ -50,5 +63,6 @@ public class AniCore extends Core{
 	}
 	private VideoCreator vidCreator;
 	private VideoScanner vidScanner = null;
+	private Animation animation = null;
 	private Image image = null;
 }
