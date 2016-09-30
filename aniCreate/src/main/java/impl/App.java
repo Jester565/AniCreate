@@ -1,5 +1,7 @@
 package impl;
 
+import java.util.HashMap;
+
 import aniCreate.Core;
 
 /**
@@ -13,4 +15,9 @@ public class App
        Core core = new AniCore();
        core.run();
     }
+    
+    public static void run()
+	{
+		HashMap <String, Integer> hm = new HashMap <String, Integer>();
+	}
 }

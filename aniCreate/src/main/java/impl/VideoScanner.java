@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Stack;
 
 import javax.swing.JFileChooser;
 
@@ -38,6 +40,7 @@ public class VideoScanner {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		frameNums = new Stack<Integer>();
 		scanPoints = new ArrayList<ScanPoint>();
 		parts = new ArrayList<Part>();
 		fileChooser = new JFileChooser();
@@ -253,6 +256,7 @@ public class VideoScanner {
 			System.out.println("reached endframe");
 			return false;
 		}
+		int prevFNum = grabber.getFrameNumber();
 		try {
 			Frame frame = grabber.grabImage();
 			frameImg.init(jImgConverter.convert(frame));
@@ -264,18 +268,19 @@ public class VideoScanner {
 		{
 			scanPoints.get(i).update(frameImg);
 		}
+		frameNums.push(prevFNum - 1);
 		return true;
 	}
 	
 	private boolean backFrame()
 	{
-		if (grabber.getFrameNumber() <= startFrame)
+		if (frameNums.isEmpty())
 		{
 			System.out.println("reached startframe");
 			return false;
 		}
 		try {
-			grabber.setFrameNumber(grabber.getFrameNumber() - 1);
+			grabber.setFrameNumber(frameNums.pop());
 			Frame frame = grabber.grabImage();
 			frameImg.init(jImgConverter.convert(frame));
 		} catch (Exception e) {
@@ -286,7 +291,6 @@ public class VideoScanner {
 		for (int i = 0; i < scanPoints.size(); i++)
 		{
 			scanPoints.get(i).rewind(1);
-			scanPoints.get(i).update(frameImg);
 		}
 		return true;
 	}
@@ -299,6 +303,7 @@ public class VideoScanner {
 	ScanPoint correctPoint = null;
 	public ArrayList<Part> parts;
 	private ArrayList<ScanPoint> scanPoints;
+	private Stack<Integer> frameNums;
 	private Image frameImg;
 	private Core core;
 	boolean fileSearching = false;

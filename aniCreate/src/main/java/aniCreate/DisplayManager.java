@@ -60,6 +60,7 @@ public class DisplayManager {
 		}
 	}
 	
+	
 	void updateScreenSize()
 	{
 		Dimension actualSize = frame.getContentPane().getSize();

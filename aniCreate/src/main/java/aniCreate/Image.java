@@ -33,6 +33,8 @@ public class Image {
 		return false;
 	}
 	
+	//dog
+	
 	public boolean init(File file)
 	{
 		try {
