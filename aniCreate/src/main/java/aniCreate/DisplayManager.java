@@ -14,20 +14,19 @@ public class DisplayManager {
 	protected static final int SCREEN_Y_OFF_DEFAULT = 0;
 	protected static final int SCREEN_X_OFF_DEFAULT = 0;
 	
-	public DisplayManager()
+	DisplayManager()
 	{
 		
 	}
 	
-	boolean init(InputManager im)
+	boolean init(InputManager im, String windowTitle)
 	{
-		frame = new JFrame("anicreate");
+		frame = new JFrame(windowTitle);
 		dca = new DisplayComponentAdapter(this);
 		frame.addComponentListener(dca);
 		frame.addMouseListener(im);
 		frame.addMouseMotionListener(im);
 		frame.addKeyListener(im);
-		frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocation(0, 0);
 		frame.setUndecorated(false);
@@ -36,12 +35,13 @@ public class DisplayManager {
 		frame.setVisible(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setSize((int)screenSize.getWidth(), (int)((29.0 * screenSize.getHeight())/30.0));
+		frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		frame.createBufferStrategy(2);
 		updateScreenSize();
 		return true;
 	}
 	
-	void setBackgroundColor(float r, float g, float b, float a)
+	public void setBackgroundColor(float r, float g, float b, float a)
 	{
 		frame.setBackground(new Color(r, g, b, a));
 	}
@@ -59,7 +59,6 @@ public class DisplayManager {
 			graphics.clearRect(screenXOff, screenYOff, (int)(DISPLAY_DEFAULT_W * screenWScale), (int)(DISPLAY_DEFAULT_H * screenHScale));
 		}
 	}
-	
 	
 	void updateScreenSize()
 	{

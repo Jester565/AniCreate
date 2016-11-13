@@ -103,7 +103,7 @@ public class VideoScanner {
 					core.getShapeRenderer().drawRect(cord.x - 2 - overBox * 2, cord.y - 2 - overBox * 2, 5 + overBox * 5, 5 + overBox * 5, 1, overBox, overBox, 1);
 					if (overBox == 1)
 					{
-						if (core.getInputManager().mouseClicked)
+						if (core.getInputManager().isMouseClicked())
 						{
 							correctPoint = scanPoints.get(i);
 						}
@@ -119,25 +119,25 @@ public class VideoScanner {
 				{
 					correctPoint = null;
 				}
-				else if (core.getInputManager().mouseClicked == true)
+				else if (core.getInputManager().isMouseClicked() == true)
 				{
-					correctPoint.correct(frameImg, (int)core.getInputManager().mouseX, (int)core.getInputManager().mouseY);
+					correctPoint.correct(frameImg, (int)core.getInputManager().getScaleMouseClickX(), (int)core.getInputManager().getScaleMouseClickY());
 				}
 			}
 		}
-		if (core.getInputManager().keyPressed('d'))
+		if (core.getInputManager().isKeyPressed('d'))
 		{
 			nextFrame();
 		}
-		if (core.getInputManager().keyPressed('a'))
+		if (core.getInputManager().isKeyPressed('a'))
 		{
 			backFrame();
 		}
-		if (core.getInputManager().keyPressed('x'))
+		if (core.getInputManager().isKeyPressed('x'))
 		{
 			projectionEnabled = !projectionEnabled;
 		}
-		if (core.getInputManager().keyPressed('z'))
+		if (core.getInputManager().isKeyPressed('z'))
 		{
 			pointCorrectingEnabled = !pointCorrectingEnabled;
 		}
@@ -154,11 +154,11 @@ public class VideoScanner {
 	private int selectScanPointIndex()
 	{
 		frameImg.draw(0, 0, DisplayManager.DISPLAY_DEFAULT_W, DisplayManager.DISPLAY_DEFAULT_H);
-		if (core.getInputManager().mouseClicked)
+		if (core.getInputManager().isMouseClicked())
 		{
-			if (core.getInputManager().mouseX > 200)
+			if (core.getInputManager().getScaleMouseClickX() > 200)
 			{
-				scanPoints.add(new ScanPoint(frameImg, (int)core.getInputManager().mouseX, (int)core.getInputManager().mouseY));
+				scanPoints.add(new ScanPoint(frameImg, (int)core.getInputManager().getScaleMouseClickX(), (int)core.getInputManager().getScaleMouseClickY()));
 			}
 		}
 		int y = 0;
@@ -173,7 +173,7 @@ public class VideoScanner {
 			Color scanCol = scanPoints.get(i).scanColor;
 			core.getShapeRenderer().drawRect(0, y, 200, 100, scanCol.getRed()/255f, scanCol.getGreen()/255f, scanCol.getBlue()/255f, .5f + .5f * overBox);
 			core.getShapeRenderer().drawRect(cord.x - 2 - overBox * 2, cord.y - 2 - overBox * 2, 5 + overBox * 5, 5 + overBox * 5, 1, overBox, overBox, 1);
-			if (overBox == 1 && core.getInputManager().mouseClicked)
+			if (overBox == 1 && core.getInputManager().isMouseClicked())
 			{
 				return i;
 			}

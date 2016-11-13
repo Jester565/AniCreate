@@ -15,15 +15,15 @@ public abstract class Core {
 	
 	public void run()
 	{
-		if (init())
+		if (init("NO NAME"))
 		{
 			while (true)
 			{
 				long startTime = System.currentTimeMillis();
 	        	dm.update();
+	        	im.update();
 	        	draw();
 	        	long timeLeft = (long)(1000.0/frameRateCap - (System.currentTimeMillis() - startTime));
-	        	im.update();
 	        	if (timeLeft > 0)
 	        	{
 	        		try {
@@ -66,11 +66,11 @@ public abstract class Core {
 		return tr;
 	}
 	
-	protected boolean init()
+	protected boolean init(String windowName)
 	{
 		dm = new DisplayManager();
 		im = new InputManager(dm);
-        if (!dm.init(im))
+        if (!dm.init(im, windowName))
         {
         	return false;
         }

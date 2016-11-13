@@ -70,8 +70,8 @@ public class Part {
 	{
 		if(core.getButtonManager().buttonClicked(0, 0, img.img.getWidth(), img.img.getHeight(), 1, 1, 1, .7f))
 		{
-			sX = (int) core.getInputManager().mouseX;
-			sY = (int) core.getInputManager().mouseY;
+			sX = (int) core.getInputManager().getScaleMouseClickX();
+			sY = (int) core.getInputManager().getScaleMouseClickY();
 		}
 		img.draw(0, 0);
 		if (sX >= 0)
@@ -105,7 +105,7 @@ public class Part {
 			angle = Math.PI * 2 + angle;
 		}
 		angle -= localAngle;
-		if (core.getInputManager().keyPressed('j'))
+		if (core.getInputManager().isKeyPressed('j'))
 		{
 			System.out.println("rad: " + angle);
 			double degs = angle * (180.0/Math.PI);

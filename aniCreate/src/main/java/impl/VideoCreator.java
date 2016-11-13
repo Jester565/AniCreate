@@ -55,12 +55,12 @@ public class VideoCreator {
 	
 	public VideoScanner draw()
 	{
-		if (core.getInputManager().keyPressed('d') && vidSeconds < vidLength)
+		if (core.getInputManager().isKeyPressed('d') && vidSeconds < vidLength)
 		{
 			vidSeconds+=(.1d);
 			getImageAtTime(vidSeconds);
 		}
-		if (core.getInputManager().keyPressed('a') && vidSeconds > 0)
+		if (core.getInputManager().isKeyPressed('a') && vidSeconds > 0)
 		{
 			vidSeconds-=(.1d);
 			getImageAtTime(vidSeconds);
@@ -71,7 +71,7 @@ public class VideoCreator {
 		drawEndInfo(800, 0);
 		if (core.getButtonManager().buttonClicked(100, 900, DisplayManager.DISPLAY_DEFAULT_W - 200, 100, 1, 0, 0, .6f))
 		{
-			vidSeconds = ((core.getInputManager().mouseX - 100) / (DisplayManager.DISPLAY_DEFAULT_W - 200)) * vidLength;
+			vidSeconds = ((core.getInputManager().getScaleMouseClickX() - 100) / (DisplayManager.DISPLAY_DEFAULT_W - 200)) * vidLength;
 			getImageAtTime(vidSeconds);
 		}
 		core.getShapeRenderer().drawRect(100 + (vidSeconds/vidLength) * (DisplayManager.DISPLAY_DEFAULT_W - 200) - 5, 870, 10, 160, .7f, .7f, .7f, .7f);

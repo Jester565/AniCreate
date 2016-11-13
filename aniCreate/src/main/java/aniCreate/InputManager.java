@@ -6,98 +6,170 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class InputManager implements MouseListener, KeyListener, MouseMotionListener{
+	
+	private ArrayList<KeyEvent> typedEventsSave;
+	private ArrayList<KeyEvent> typedEvents;
+	private ArrayList<Character> pressedKeys;
+	private boolean mouseDown = false;
+	private boolean mouseClicked = false;
+	private boolean mouseClickedSave = false;
+	private double mouseClickX = 0;
+	private double mouseClickY = 0;
+	private double mouseX = 0;
+	private double mouseY = 0;
+	private DisplayManager dm;
+	
+	TextField activeTextField;
 	
 	InputManager(DisplayManager dm)
 	{
 		this.dm = dm;
-		typedKeys = new ArrayList<Character>();
+		typedEvents = new ArrayList<KeyEvent>();
+		typedEventsSave = new ArrayList<KeyEvent>();
+		pressedKeys = new ArrayList<Character>();
 	}
 	
 	public void update()
 	{
-		typedKeys.clear();
-		mouseClicked = false;
-		mouseClickX = -1000;
-		mouseClickY = -1000;
+		if (mouseClickedSave)
+		{
+			mouseClicked = true;
+		}
+		else
+		{
+			mouseClicked = false;
+			mouseClickX = -1000;
+			mouseClickY = -1000;
+		}
+		if (typedEventsSave.size() > 0)
+		{
+			typedEvents = new ArrayList <KeyEvent>(typedEventsSave);
+		}
+		else
+		{
+			typedEvents.clear();
+		}
+		mouseClickedSave = false;
+		typedEventsSave.clear();
 	}
 	
-	public boolean keyPressed(char c)
+	public boolean isKeyTyped(char c)
 	{
-		if (typedKeys.contains(Character.toLowerCase(c)))
+		if (typedEvents.contains(Character.toLowerCase(c)))
 		{
 			return true;
 		}
-		return typedKeys.contains(Character.toUpperCase(c));
+		return typedEvents.contains(Character.toUpperCase(c));
 	}
 	
-	public boolean charPressed(char c)
+	public boolean isKeyPressed(char c)
 	{
-		return typedKeys.contains(c);
+		if (isCharPressed(Character.toLowerCase(c)))
+		{
+			return true;
+		}
+		return isCharPressed(Character.toUpperCase(c));
+	}
+	
+	public boolean isCharPressed(char c)
+	{
+		return activeTextField == null && (pressedKeys.contains(c) || isCharTyped(c));
+	}
+	
+	public boolean isCharTyped(char c)
+	{
+		return activeTextField == null && typedEvents.contains(c);
 	}
 	
 	public void keyPressed(KeyEvent event) {
-		
-		
+		if (!pressedKeys.contains(event.getKeyChar()))
+		{
+			pressedKeys.add((Character)event.getKeyChar());
+		}
+		event.consume();
 	}
 
 	public void keyReleased(KeyEvent event) {
-		
+		pressedKeys.remove((Character)event.getKeyChar());
+		typedEventsSave.add(event);
+		event.consume();
 	}
 
 	public void keyTyped(KeyEvent event) {
-		typedKeys.add(event.getKeyChar());
 	}
 
 	public void mouseClicked(MouseEvent event) {
-		mouseClicked = true;
-		mouseClickX = scaleMouseX(event.getX());
-		mouseClickY = scaleMouseY(event.getY());
+		event.consume();
 	}
 
 	public void mouseEntered(MouseEvent event) {
-		
+		event.consume();
 	}
 
 	public void mouseExited(MouseEvent event) {
-		
-		
+		event.consume();
 	}
 
 	public void mousePressed(MouseEvent event) {
 		mouseDown = true;
+		event.consume();
 	}
 	
 	public void mouseReleased(MouseEvent event) {
 		mouseDown = false;
+		mouseClickedSave = true;
+		mouseClickX = event.getX();
+		mouseClickY = event.getY();
+		event.consume();
 	}
-	private ArrayList<Character> typedKeys;
-	public boolean mouseDown = false;
-	public boolean mouseClicked = false;
-	public double mouseClickX = 0;
-	public double mouseClickY = 0;
-	public double mouseX = 0;
-	public double mouseY = 0;
+	
 	public void mouseDragged(MouseEvent event) {
-		mouseX = scaleMouseX(event.getX());
-		mouseY = scaleMouseY(event.getY());
+		mouseX = event.getX();
+		mouseY = event.getY();
+		event.consume();
 	}
 
 	public void mouseMoved(MouseEvent event) {
-		mouseX = scaleMouseX(event.getX());
-		mouseY = scaleMouseY(event.getY());
+		mouseX = event.getX();
+		mouseY = event.getY();
+		event.consume();
 	}
 	
-	private double scaleMouseX(int mouseX)
+	public double getScaleMouseX()
 	{
-		return ((double)mouseX)/dm.screenWScale - dm.screenXOff;
+		return ((double)mouseX - dm.screenXOff)/dm.screenWScale;
 	}
 	
-	private double scaleMouseY(int mouseY)
+	public double getScaleMouseY()
 	{
-		return ((double)mouseY)/dm.screenHScale - dm.screenYOff;
+		return ((double)mouseY - dm.screenYOff)/dm.screenHScale;
 	}
 	
-	private DisplayManager dm;
+	public double getScaleMouseClickX()
+	{
+		return ((double)mouseClickX - dm.screenXOff)/dm.screenWScale;
+	}
+	
+	public double getScaleMouseClickY()
+	{
+		return ((double)mouseClickY - dm.screenYOff)/dm.screenHScale;
+	}
+	
+	public boolean isMouseClicked()
+	{
+		return mouseClicked;
+	}
+	
+	public boolean isMouseDown()
+	{
+		return mouseClicked || mouseDown;
+	}
+	
+	ArrayList<KeyEvent> getTypedEvents()
+	{
+		return typedEvents;
+	}
 }

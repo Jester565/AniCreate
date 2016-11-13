@@ -10,20 +10,94 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 public class TextRenderer {
+	private DisplayManager dm;
+	private HashMap<Float, Font> fontSizeMap;
+	private HashMap<String, HashMap<Float, Font>> fonts;
+	
 	public TextRenderer(DisplayManager dm)
 	{
 		this.dm = dm;
-		fonts = new HashMap<String, Font>();
+		fonts = new HashMap<String, HashMap<Float, Font>>();
 	}
 	
-	private int getFontWidth(String s)
+	public int getTextWidth(String msg)
 	{
 		FontMetrics fm = dm.graphics.getFontMetrics();
-		return fm.stringWidth(s);
+		return (int) (fm.stringWidth(msg));
 	}
-
 	
-	public boolean addFont(String fontPath)
+	public int getTextWidth(String msg, float fontSize)
+	{
+		fontSize *= (float)(dm.screenHScale * dm.screenWScale);
+		if (setFontToSize(fontSize))
+		{
+			return getTextWidth(msg);
+		}
+		return 0;
+	}
+	
+	public int getTextWidth(String msg, String fontName, float fontSize)
+	{
+		if (setFont(fontName))
+		{
+			return getTextWidth(msg, fontSize);
+		}
+		return 0;
+	}
+	
+	private boolean setFontToSize(float size)
+	{
+		Font f = getFontFromSize(size);
+		if (f == null)
+		{
+			f = addFontSize(size);
+		}
+		if (f != null)
+		{
+			if (f != dm.graphics.getFont())
+			{
+				dm.graphics.setFont(f);
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	private Font getFontFromSize(float size)
+	{
+		if (fontSizeMap != null)
+		{
+			return fontSizeMap.get(size);
+		}
+		return null;
+	}
+	
+	private Font addFontSize(float size)
+	{
+		if (fontSizeMap != null && !fontSizeMap.containsKey(size))
+		{
+			Font f = fontSizeMap.get(0f).deriveFont(size);
+			fontSizeMap.put(size, f);
+			return f;
+		}
+		return null;
+	}
+	
+	public boolean setFont(String fontName)
+	{
+		if (dm == null || dm.graphics == null || dm.graphics.getFont() == null || fontName != dm.graphics.getFont().getName())
+		{
+			fontSizeMap = fonts.get(fontName);
+			if (fontSizeMap == null)
+			{
+				System.err.println("FAILED TO FIND FONT NAME");
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean loadFont(String fontPath)
 	{
 		InputStream is = getClass().getClassLoader().getResourceAsStream(fontPath);
 		if (is == null)
@@ -44,8 +118,8 @@ public class TextRenderer {
 			{
 				lastPeriodI = fontPath.length();
 			}
-			String fontName = fontPath.substring(lastSlashI, lastPeriodI + 1);
-			fonts.put(fontName, f);
+			fonts.put(f.getName(), new HashMap<Float, Font>());
+			fonts.get(f.getName()).put(0f, f);
 		} catch (FontFormatException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -56,93 +130,48 @@ public class TextRenderer {
 	
 	public void drawText(String msg, double x, double y, float fontSize, float r, float g, float b, float a)
 	{
-		if (fonts.size() == 0)
-		{
-			System.err.println("No fonts can be used for drawText");
-			return;
-		}
 		fontSize *= (float)(dm.screenHScale * dm.screenWScale);
-		Font newFont = fonts.values().iterator().next();
-		Font currentFont = dm.graphics.getFont();
-		if (newFont != currentFont || newFont.getSize() != (int)fontSize)
+		if (setFontToSize(fontSize))
 		{
-			if (newFont.getSize() != (int)fontSize)
-			{
-				newFont = newFont.deriveFont(fontSize);
-			}
-			dm.graphics.setFont(newFont);
+			dm.graphics.setColor(new Color(r, g, b, a));
+			dm.graphics.drawString(msg, (int)(x * dm.screenWScale + dm.screenXOff), (int)(y * dm.screenHScale + dm.screenYOff));
 		}
-		dm.graphics.setColor(new Color(r, g, b, a));
-		dm.graphics.drawString(msg, (int)(x * dm.screenWScale + dm.screenXOff), (int)(y * dm.screenHScale + dm.screenYOff));
 	}
 	
 	public void drawText(String msg, double x, double y, String fontName, float fontSize, float r, float g, float b, float a)
 	{
-		fontSize *= (float)(dm.screenHScale * dm.screenWScale);
-		Font newFont = fonts.get(fontName);
-		if (newFont == null)
+		if (setFont(fontName))
 		{
-			System.err.println("Font: " + fontName + " could not be found when calling drawText");
-			return;
-		}
-		Font currentFont = dm.graphics.getFont();
-		if (newFont != currentFont || newFont.getSize() != (int)fontSize)
-		{
-			if (newFont.getSize() != (int)fontSize)
+			fontSize *= (float)(dm.screenHScale * dm.screenWScale);
+			if (setFontToSize(fontSize))
 			{
-				newFont = newFont.deriveFont(fontSize);
+				dm.graphics.setColor(new Color(r, g, b, a));
+				dm.graphics.drawString(msg, (int)(x * dm.screenWScale) + dm.screenXOff, (int)(y * dm.screenHScale + dm.screenYOff));
 			}
-			dm.graphics.setFont(newFont);
 		}
-		dm.graphics.setColor(new Color(r, g, b, a));
-		dm.graphics.drawString(msg, (int)(x * dm.screenWScale) + dm.screenXOff, (int)(y * dm.screenHScale + dm.screenYOff));
 	}
 	
 
 	public void drawCenteredText(String msg, double x, double y, float fontSize, float r, float g, float b, float a)
 	{
-		if (fonts.size() == 0)
-		{
-			System.err.println("No fonts can be used for drawText");
-			return;
-		}
 		fontSize *= (float)(dm.screenHScale * dm.screenWScale);
-		Font newFont = fonts.values().iterator().next();
-		Font currentFont = dm.graphics.getFont();
-		if (newFont != currentFont || newFont.getSize() != (int)fontSize)
+		if (setFontToSize(fontSize))
 		{
-			if (newFont.getSize() != (int)fontSize)
-			{
-				newFont = newFont.deriveFont(fontSize);
-			}
-			dm.graphics.setFont(newFont);
+			dm.graphics.setColor(new Color(r, g, b, a));
+			dm.graphics.drawString(msg, (int)((x - getTextWidth(msg)/2d) * dm.screenWScale + dm.screenXOff), (int)(y * dm.screenHScale + dm.screenYOff));
 		}
-		dm.graphics.setColor(new Color(r, g, b, a));
-		dm.graphics.drawString(msg, (int)((x - getFontWidth(msg)/2d) * dm.screenWScale + dm.screenXOff), (int)(y * dm.screenHScale + dm.screenYOff));
 	}
 	
 	public void drawCenteredText(String msg, double x, double y, String fontName, float fontSize, float r, float g, float b, float a)
 	{
-		fontSize *= (float)(dm.screenHScale * dm.screenWScale);
-		Font newFont = fonts.get(fontName);
-		if (newFont == null)
+		if (setFont(fontName))
 		{
-			System.err.println("Font: " + fontName + " could not be found when calling drawText");
-			return;
-		}
-		Font currentFont = dm.graphics.getFont();
-		if (newFont != currentFont || newFont.getSize() != (int)fontSize)
-		{
-			if (newFont.getSize() != (int)fontSize)
+			fontSize *= (float)(dm.screenHScale * dm.screenWScale);
+			if (setFontToSize(fontSize))
 			{
-				newFont = newFont.deriveFont(fontSize);
+				dm.graphics.setColor(new Color(r, g, b, a));
+				dm.graphics.drawString(msg, (int)((x - getTextWidth(msg)/2d) * dm.screenWScale + dm.screenXOff), (int)(y * dm.screenHScale + dm.screenYOff));
 			}
-			dm.graphics.setFont(newFont);
 		}
-		dm.graphics.setColor(new Color(r, g, b, a));
-		dm.graphics.drawString(msg, (int)((x - getFontWidth(msg)/2d) * dm.screenWScale + dm.screenXOff), (int)(y * dm.screenHScale + dm.screenYOff));
 	}
-	
-	private DisplayManager dm;
-	private HashMap<String, Font> fonts;
 }

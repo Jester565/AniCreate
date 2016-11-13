@@ -9,14 +9,38 @@ public class ButtonManager {
 	public boolean overRect(double x, double y, double w, double h)
 	{
 		InputManager im = core.getInputManager();
-		return (im.mouseX > x && im.mouseX < x + w && im.mouseY > y && im.mouseY < y + h);
+		return (im.getScaleMouseX() > x && im.getScaleMouseX() < x + w && im.getScaleMouseY() > y && im.getScaleMouseY() < y + h);
+	}
+	
+	public boolean buttonClicked(double x, double y, double w, double h)
+	{
+		if (overRect(x, y, w, h))
+		{
+			if (core.getInputManager().isMouseClicked())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean buttonPressed(double x, double y, double w, double h)
+	{
+		if (overRect(x, y, w, h))
+		{
+			if (core.getInputManager().isMouseDown())
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public boolean buttonClicked(double x, double y, double w, double h, float r, float g, float b, float a)
 	{
 		if (overRect(x, y, w, h))
 		{
-			if (core.getInputManager().mouseClicked)
+			if (core.getInputManager().isMouseClicked())
 			{
 				smartRectColorChange(x, y, w, h, r, g, b, a, .5f);
 				return true;
@@ -37,7 +61,7 @@ public class ButtonManager {
 	{
 		if (overRect(x, y, w, h))
 		{
-			if (core.getInputManager().mouseDown)
+			if (core.getInputManager().isMouseDown())
 			{
 				smartRectColorChange(x, y, w, h, r, g, b, a, .5f);
 				return true;

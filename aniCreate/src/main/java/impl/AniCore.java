@@ -2,6 +2,9 @@ package impl;
 
 import aniCreate.Core;
 import aniCreate.Image;
+import aniCreate.Music;
+import aniCreate.Sound;
+import aniCreate.TextField;
 
 public class AniCore extends Core{
 
@@ -10,14 +13,18 @@ public class AniCore extends Core{
 	}
 	
 	@Override
-	protected boolean init()
+	protected boolean init(String windowName)
 	{
 		boolean fail = false;
-		if (!super.init())
+		if (!super.init("AniCreate"))
 		{
 			return false;
 		}
-		fail |= !tr.addFont("Calibri.ttf");
+		fail |= !tr.loadFont("Calibri.ttf");
+		fail |= !tr.setFont("Calibri");
+		field = new TextField(this, 500, 50);
+		sound = new Sound("./grass1.wav", 1);
+		music = new Music("./rangerTheme.wav", 1);
 		vidCreator = new VideoCreator(this);
 		fail |= !vidCreator.init("C:/Users/ajcra/Downloads/test6.mp4");
 		vidCreator.getImageAtTime(0);
@@ -44,23 +51,32 @@ public class AniCore extends Core{
 				animation.init(vidScanner.parts, vidCreator.endSeconds - vidCreator.startSeconds);
 			}
 			animation.draw();
-			if (im.keyPressed('r'))
+			if (im.isKeyPressed('r'))
 			{
 				animation.reset();
 			}
 		}
-		/*
-		image.drawScale(500, 500, .5d, .5d);
-		if (im.keyPressed('d'))
+		field.draw(500, 500);
+		if (getInputManager().isCharPressed('l'))
 		{
-			image.addRads(.02d);
+			sound.play();
 		}
-		if (im.keyPressed('a'))
+		if (getInputManager().isCharPressed('k'))
 		{
-			image.addRads(-.02d);
+			sound.stopAndReset();
 		}
-		*/
+		if (getInputManager().isCharPressed('p'))
+		{
+			music.play();
+		}
+		if (getInputManager().isCharPressed('o'))
+		{
+			music.stopAndReset();
+		}
 	}
+	private Music music;
+	private Sound sound;
+	private TextField field;
 	private VideoCreator vidCreator;
 	private VideoScanner vidScanner = null;
 	private Animation animation = null;
